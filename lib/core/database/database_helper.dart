@@ -6,9 +6,7 @@ class DatabaseHelper {
   static const int databaseVersion = 1;
 
   static const String tableTransactions = 'transactions';
-
   DatabaseHelper._privateConstructor();
-
   static final DatabaseHelper instance =
   DatabaseHelper._privateConstructor();
 
