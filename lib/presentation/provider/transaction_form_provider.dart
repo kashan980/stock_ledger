@@ -213,7 +213,9 @@ class TransactionFormProvider extends ChangeNotifier {
         priceController.text.trim(),
       ),
       transactionDate: transactionDate.toIso8601String(),
-      notes: notesController.text.trim().isEmpty
+      notes: notesController.text
+          .trim()
+          .isEmpty
           ? null
           : notesController.text.trim(),
     );
@@ -221,18 +223,18 @@ class TransactionFormProvider extends ChangeNotifier {
     isSaving = true;
     notifyListeners();
 
-    try {
-      // Save to database
-      await _repository.insertTransaction(transaction);
+      try {
+        // Save to database
+        await _repository.insertTransaction(transaction);
 
-      return true;
-    } catch (e) {
-      rethrow;
-    } finally {
-      isSaving = false;
-      notifyListeners();
+        return true;
+      } catch (e) {
+        rethrow;
+      } finally {
+        isSaving = false;
+        notifyListeners();
+      }
     }
-  }
 
   // --------------------------------------------------
   // DISPOSE
