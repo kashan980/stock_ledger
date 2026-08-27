@@ -19,6 +19,30 @@ class TransactionRepository {
     );
   }
 
+
+
+
+
+
+
+  Future<List<TransactionModel>> getTransactions() async {
+    final db = await _databaseHelper.database;
+
+    final List<Map<String, dynamic>> maps = await db.query(
+      DatabaseHelper.tableTransactions,
+      orderBy: 'transaction_date DESC',
+    );
+
+    return maps
+        .map((map) => TransactionModel.fromMap(map))
+        .toList();
+  }
+  // this for for get transaction which will be used to show the transaction in the detail page
+
+
+
+
+
   void _validateTransaction(
       TransactionModel transaction,
       ) {

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:personal_stock/presentation/screens/transaction_form/transaction_form_screen.dart';
+//import 'package:personal_stock/presentation/screens/home/home_screen.dart';
+//import 'package:personal_stock/presentation/screens/transaction_form/transaction_form_screen.dart';
+import 'package:personal_stock/presentation/screens/home/home_screen.dart';
 
 void main() {
   runApp(
@@ -23,7 +25,9 @@ class PersonalStockApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const TransactionFormScreen(),
+      //home: const TransactionFormScreen(),
+     // home: const TransactionListScreen(),
+        home: const HomeScreen(),
     );
   }
 }
