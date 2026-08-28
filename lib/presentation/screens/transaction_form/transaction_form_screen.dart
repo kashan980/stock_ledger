@@ -264,10 +264,194 @@
 //   }
 // }
 
+// import 'package:flutter/material.dart';
+// import 'package:provider/provider.dart';
+//
+// import '../../../core/validators/form_validators.dart';
+// import '../../provider/transaction_form_provider.dart';
+// import '../../widgets/app_button.dart';
+// import '../../widgets/app_date_field.dart';
+// import '../../widgets/app_drop_down.dart';
+// import '../../widgets/app_text_field.dart';
+// import '../../../data/models/transaction_model.dart';
+//
+// class TransactionFormScreen extends StatelessWidget {
+//   final TransactionModel? transaction;
+//
+//   const TransactionFormScreen({
+//     super.key,
+//     this.transaction,
+//   });
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return ChangeNotifierProvider(
+//       create: (_) => TransactionFormProvider(),
+//       child: const _TransactionFormView(),
+//     );
+//   }
+// }
+//
+// class _TransactionFormView extends StatelessWidget {
+//   const _TransactionFormView();
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final provider = context.watch<TransactionFormProvider>();
+//
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text(
+//           'Add Transaction',
+//         ),
+//       ),
+//       body: SingleChildScrollView(
+//         padding: const EdgeInsets.all(16),
+//         child: Form(
+//           key: provider.formKey,
+//           autovalidateMode:
+//           AutovalidateMode.onUserInteraction,
+//           child: Column(
+//             crossAxisAlignment:
+//             CrossAxisAlignment.stretch,
+//             children: [
+//               // Stock ticker
+//               AppTextField(
+//                 controller: provider.symbolController,
+//                 label: 'Stock Ticker',
+//                 hint: 'e.g. UBL',
+//                 textCapitalization:
+//                 TextCapitalization.characters,
+//                 validator:
+//                 FormValidators.stockSymbol,
+//               ),
+//
+//               const SizedBox(height: 16),
+//
+//               // Transaction type
+//               AppDropdown<String>(
+//                 value: provider.transactionType,
+//                 label: 'Transaction Type',
+//                 items: const [
+//                   DropdownMenuItem(
+//                     value: 'BUY',
+//                     child: Text('BUY'),
+//                   ),
+//                   DropdownMenuItem(
+//                     value: 'SELL',
+//                     child: Text('SELL'),
+//                   ),
+//                 ],
+//                 onChanged:
+//                 provider.setTransactionType,
+//                 validator:
+//                 FormValidators.transactionType,
+//               ),
+//
+//               const SizedBox(height: 16),
+//
+//               // Quantity
+//               AppTextField(
+//                 controller: provider.quantityController,
+//                 label: 'Quantity',
+//                 hint: 'e.g. 10',
+//                 keyboardType:
+//                 TextInputType.number,
+//                 validator:
+//                 FormValidators.quantity,
+//               ),
+//
+//               const SizedBox(height: 16),
+//
+//               // Price
+//               AppTextField(
+//                 controller: provider.priceController,
+//                 label: 'Price Per Share',
+//                 hint: 'e.g. 150.50',
+//                 keyboardType:
+//                 const TextInputType.numberWithOptions(
+//                   decimal: true,
+//                 ),
+//                 validator:
+//                 FormValidators.price,
+//               ),
+//
+//               const SizedBox(height: 16),
+//
+//               // Transaction date
+//               AppDateField(
+//                 date: provider.transactionDate,
+//                 label: 'Transaction Date',
+//                 onTap: () {
+//                   provider.selectDate(context);
+//                 },
+//               ),
+//
+//               const SizedBox(height: 16),
+//
+//               // Notes
+//               AppTextField(
+//                 controller: provider.notesController,
+//                 label: 'Notes',
+//                 hint: 'Optional',
+//                 maxLength: 100,
+//                 maxLines: 3,
+//                 validator:
+//                 FormValidators.notes,
+//               ),
+//
+//               const SizedBox(height: 24),
+//
+//               // Submit button
+//               AppButton(
+//                 text: 'Submit',
+//                 onPressed: () async {
+//                   try {
+//                     final success =
+//                     await provider.submit();
+//
+//                     if (!context.mounted) return;
+//
+//                     if (success) {
+//                       ScaffoldMessenger.of(context)
+//                           .showSnackBar(
+//                         const SnackBar(
+//                           content: Text(
+//                             'Transaction saved successfully',
+//                           ),
+//                         ),
+//                       );
+//                     }
+//                   } catch (e) {
+//                     if (!context.mounted) return;
+//
+//                     ScaffoldMessenger.of(context)
+//                         .showSnackBar(
+//                       SnackBar(
+//                         content: Text(
+//                           'Failed to save transaction: $e',
+//                         ),
+//                       ),
+//                     );
+//                   }
+//                 },
+//                 isLoading: provider.isSaving,
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/validators/form_validators.dart';
+import '../../../data/models/transaction_model.dart';
 import '../../provider/transaction_form_provider.dart';
 import '../../widgets/app_button.dart';
 import '../../widgets/app_date_field.dart';
@@ -275,14 +459,25 @@ import '../../widgets/app_drop_down.dart';
 import '../../widgets/app_text_field.dart';
 
 class TransactionFormScreen extends StatelessWidget {
+  final TransactionModel? transaction;
+
   const TransactionFormScreen({
     super.key,
+    this.transaction,
   });
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => TransactionFormProvider(),
+      create: (_) {
+        final provider = TransactionFormProvider(
+          transaction: transaction,
+        );
+
+        provider.initializeForm();
+
+        return provider;
+      },
       child: const _TransactionFormView(),
     );
   }
@@ -297,8 +492,10 @@ class _TransactionFormView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Add Transaction',
+        title: Text(
+          provider.transaction == null
+              ? 'Add Transaction'
+              : 'Edit Transaction',
         ),
       ),
       body: SingleChildScrollView(
@@ -348,7 +545,8 @@ class _TransactionFormView extends StatelessWidget {
 
               // Quantity
               AppTextField(
-                controller: provider.quantityController,
+                controller:
+                provider.quantityController,
                 label: 'Quantity',
                 hint: 'e.g. 10',
                 keyboardType:
@@ -361,7 +559,8 @@ class _TransactionFormView extends StatelessWidget {
 
               // Price
               AppTextField(
-                controller: provider.priceController,
+                controller:
+                provider.priceController,
                 label: 'Price Per Share',
                 hint: 'e.g. 150.50',
                 keyboardType:
@@ -387,7 +586,8 @@ class _TransactionFormView extends StatelessWidget {
 
               // Notes
               AppTextField(
-                controller: provider.notesController,
+                controller:
+                provider.notesController,
                 label: 'Notes',
                 hint: 'Optional',
                 maxLength: 100,
@@ -400,7 +600,9 @@ class _TransactionFormView extends StatelessWidget {
 
               // Submit button
               AppButton(
-                text: 'Submit',
+                text: provider.transaction == null
+                    ? 'Add Transaction'
+                    : 'Update Transaction',
                 onPressed: () async {
                   try {
                     final success =
@@ -411,12 +613,16 @@ class _TransactionFormView extends StatelessWidget {
                     if (success) {
                       ScaffoldMessenger.of(context)
                           .showSnackBar(
-                        const SnackBar(
+                        SnackBar(
                           content: Text(
-                            'Transaction saved successfully',
+                            provider.transaction == null
+                                ? 'Transaction added successfully'
+                                : 'Transaction updated successfully',
                           ),
                         ),
                       );
+
+                      Navigator.pop(context);
                     }
                   } catch (e) {
                     if (!context.mounted) return;

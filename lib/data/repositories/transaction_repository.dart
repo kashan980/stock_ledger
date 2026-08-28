@@ -41,6 +41,36 @@ class TransactionRepository {
 
 
 
+  Future<int> updateTransaction(
+      TransactionModel transaction,
+      ) async {
+    _validateTransaction(transaction);
+
+    final db = await _databaseHelper.database;
+
+    return await db.update(
+      DatabaseHelper.tableTransactions,
+      transaction.toMap(),
+      where: 'id = ?',
+      whereArgs: [transaction.id],
+    );
+  }
+  //added for update transaction
+
+
+
+
+
+  Future<int> deleteTransaction(int id) async {
+    final db = await _databaseHelper.database;
+
+    return await db.delete(
+      DatabaseHelper.tableTransactions,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+  //added for delete transactions
 
 
   void _validateTransaction(
